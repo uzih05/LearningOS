@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="kr" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Questions - Operating Systems</title>
+  <link href="https://ai-public.creatie.ai/gen_page/tailwind-custom.css" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com/3.4.5"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+<!-- 네비게이션 바 (필요 시 추가) -->
+<nav class="bg-white shadow-sm p-4">
+  <a th:href="@{/}" class="text-blue-600 hover:underline">&larr; 메인으로</a>
+</nav>
+
+<!-- 메인 콘텐츠: 소단원에 속한 Question 목록 -->
+<main class="max-w-4xl mx-auto p-4">
+  <h1 class="text-3xl font-bold mb-4" th:text="${subchapter.title}">소단원 제목</h1>
+  <p class="text-lg text-gray-600 mb-6" th:text="${subchapter.description}">소단원 설명</p>
+
+  <div class="space-y-6">
+    <div th:each="question : ${subchapter.questions}" class="p-4 border rounded bg-white shadow">
+      <p class="font-semibold text-gray-800" th:text="${question.questionText}">Question 내용</p>
+      <!-- 예: 정답 보기 버튼 및 정답 영역 -->
+      <div class="mt-4">
+        <button type="button"
+                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                onclick="toggleAnswer(this)">
+          정답 보기
+        </button>
+        <div class="mt-2 hidden text-gray-700" th:text="${question.answer}">
+          정답 내용
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  function toggleAnswer(button) {
+    var answerDiv = button.nextElementSibling;
+    if (answerDiv.classList.contains('hidden')) {
+      answerDiv.classList.remove('hidden');
+    } else {
+      answerDiv.classList.add('hidden');
+    }
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Add Content</title>
+    <link href="https://ai-public.creatie.ai/gen_page/tailwind-custom.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com/3.4.5"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+</head>
+<body class="bg-gray-50 min-h-screen">
+<nav class="bg-white shadow-sm">
+    <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <div class="flex items-center">
+                <a href="/" class="text-gray-900 font-semibold">
+                    <span class="text-xl font-semibold">Operating Systems</span>
+                </a>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span class="text-gray-900">Admin Panel</span>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+        <div class="mb-8 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-gray-900">Add New Content</h1>
+            <a href="/admin/list" class="text-indigo-600 hover:text-indigo-900">
+                <i class="fas fa-list mr-1"></i> View All Content
+            </a>
+        </div>
+
+        <div id="alert-container">
+            <!-- Success/error messages will be displayed here -->
+            <div th:if="${message}" class="mb-6 p-4 bg-green-100 text-green-700 rounded-md">
+                <p th:text="${message}"></p>
+            </div>
+            <div th:if="${error}" class="mb-6 p-4 bg-red-100 text-red-700 rounded-md">
+                <p th:text="${error}"></p>
+            </div>
+        </div>
+
+        <!-- Integrated Form -->
+        <div id="integrated-form" class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <!-- Chapter Section -->
+            <div class="p-6 border-b border-gray-200">
+                <h2 class="text-xl font-semibold mb-4">Chapter Information</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="chapterNumber" class="block text-sm font-medium text-gray-700">Chapter Number</label>
+                        <input type="number" id="chapterNumber" min="1" max="9"
+                               class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                    </div>
+                    <div>
+                        <label for="chapterTitle" class="block text-sm font-medium text-gray-700">Title</label>
+                        <input type="text" id="chapterTitle"
+                               class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label for="chapterDescription" class="block text-sm font-medium text-gray-700">Description</label>
+                    <textarea id="chapterDescription" rows="2"
+                              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required></textarea>
+                </div>
+            </div>
+
+            <!-- Subchapters Section -->
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold">Subchapters</h2>
+                    <button type="button" id="add-subchapter-btn"
+                            class="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <i class="fas fa-plus mr-1"></i> Add Subchapter
+                    </button>
+                </div>
+
+                <div id="subchapters-container">
+                    <!-- Subchapters will be added here dynamically -->
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="p-6 bg-gray-50 flex items-center justify-between">
+                <span id="validation-message" class="text-red-500 text-sm"></span>
+                <div class="flex space-x-3">
+                    <button type="button" id="preview-btn"
+                            class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Preview
+                    </button>
+                    <button type="button" id="save-btn"
+                            class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Save Content
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview Modal -->
+        <div id="preview-modal" class="fixed inset-0 bg-gray-500 bg-opacity-75 hidden flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                    <h3 class="text-lg font-medium text-gray-900">Content Preview</h3>
+                    <button id="close-preview" class="text-gray-400 hover:text-gray-500">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="p-6" id="preview-content">
+                    <!-- Preview content will be inserted here -->
+                </div>
+                <div class="px-6 py-4 border-t border-gray-200 flex justify-end">
+                    <button id="close-preview-btn" class="py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Close Preview
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white p-5 rounded-lg shadow-lg flex items-center space-x-3">
+                <svg class="animate-spin h-5 w-5 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Saving content...</span>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Subchapter Template -->
+<template id="subchapter-template">
+    <div class="subchapter-item bg-gray-50 p-4 rounded-md mb-4">
+        <div class="flex justify-between mb-3">
+            <h3 class="font-medium text-gray-900 subchapter-number">Subchapter 1</h3>
+            <button type="button" class="remove-subchapter text-red-600 hover:text-red-900">
+                <i class="fas fa-trash"></i> Remove
+            </button>
+        </div>
+
+        <div class="mb-3">
+            <label class="block text-sm font-medium text-gray-700">Title</label>
+            <input type="text" class="subchapter-title mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="block text-sm font-medium text-gray-700">Description</label>
+            <textarea class="subchapter-description mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" rows="2" required></textarea>
+        </div>
+
+        <!-- Questions for this subchapter -->
+        <div class="mt-4 border-t border-gray-200 pt-4">
+            <div class="flex justify-between items-center mb-3">
+                <h4 class="font-medium text-gray-700">Questions</h4>
+                <button type="button" class="add-question-btn
+                        inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                    <i class="fas fa-plus mr-1"></i> Add Question
+                </button>
+            </div>
+
+            <div class="questions-container">
+                <!-- Questions will be added here dynamically -->
+            </div>
+        </div>
+    </div>
+</template>
+
+<!-- Question Template -->
+<template id="question-template">
+    <div class="question-item bg-white p-3 rounded border border-gray-200 mb-3">
+        <div class="flex justify-between mb-2">
+            <h5 class="font-medium text-sm text-gray-700 question-number">Question 1</h5>
+            <button type="button" class="remove-question text-red-600 hover:text-red-900 text-sm">
+                <i class="fas fa-times"></i> Remove
+            </button>
+        </div>
+
+        <div class="mb-3">
+            <label class="block text-xs font-medium text-gray-700">Question Text</label>
+            <textarea class="question-text mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" rows="2" required></textarea>
+        </div>
+
+        <!-- Multiple Choice Options -->
+        <div class="space-y-2">
+            <div class="flex items-center">
+                <div class="w-8 text-center">
+                    <input type="radio" name="correctOption" value="A" class="correct-option focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300" checked>
+                </div>
+                <div class="flex-1">
+                    <label class="block text-xs font-medium text-gray-700">Option A</label>
+                    <input type="text" class="option-a mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                </div>
+            </div>
+            <div class="flex items-center">
+                <div class="w-8 text-center">
+                    <input type="radio" name="correctOption" value="B" class="correct-option focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300">
+                </div>
+                <div class="flex-1">
+                    <label class="block text-xs font-medium text-gray-700">Option B</label>
+                    <input type="text" class="option-b mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                </div>
+            </div>
+            <div class="flex items-center">
+                <div class="w-8 text-center">
+                    <input type="radio" name="correctOption" value="C" class="correct-option focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300">
+                </div>
+                <div class="flex-1">
+                    <label class="block text-xs font-medium text-gray-700">Option C</label>
+                    <input type="text" class="option-c mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                </div>
+            </div>
+            <div class="flex items-center">
+                <div class="w-8 text-center">
+                    <input type="radio" name="correctOption" value="D" class="correct-option focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300">
+                </div>
+                <div class="flex-1">
+                    <label class="block text-xs font-medium text-gray-700">Option D</label>
+                    <input type="text" class="option-d mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <label class="block text-xs font-medium text-gray-700">Explanation</label>
+            <textarea class="question-explanation mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" rows="2"></textarea>
+        </div>
+    </div>
+</template>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const subchapterTemplate = document.getElementById('subchapter-template');
+        const questionTemplate = document.getElementById('question-template');
+        const subchaptersContainer = document.getElementById('subchapters-container');
+        const addSubchapterBtn = document.getElementById('add-subchapter-btn');
+        const previewBtn = document.getElementById('preview-btn');
+        const saveBtn = document.getElementById('save-btn');
+        const previewModal = document.getElementById('preview-modal');
+        const closePreviewBtn = document.getElementById('close-preview-btn');
+        const closePreview = document.getElementById('close-preview');
+        const previewContent = document.getElementById('preview-content');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const alertContainer = document.getElementById('alert-container');
+
+        let subchapterCount = 0;
+
+        // Add first subchapter by default
+        addSubchapter();
+
+        // Add subchapter
+        addSubchapterBtn.addEventListener('click', addSubchapter);
+
+        function addSubchapter() {
+            subchapterCount++;
+
+            // Clone the template
+            const newSubchapter = subchapterTemplate.content.cloneNode(true);
+            const subchapterItem = newSubchapter.querySelector('.subchapter-item');
+
+            // Update subchapter number
+            newSubchapter.querySelector('.subchapter-number').textContent = `Subchapter ${subchapterCount}`;
+
+            // Setup question adding
+            const addQuestionBtn = newSubchapter.querySelector('.add-question-btn');
+            const questionsContainer = newSubchapter.querySelector('.questions-container');
+
+            let questionCount = 0;
+
+            addQuestionBtn.addEventListener('click', function() {
+                addQuestion(questionsContainer, questionCount + 1);
+                questionCount++;
+            });
+
+            // Add remove event listener
+            const removeBtn = newSubchapter.querySelector('.remove-subchapter');
+            removeBtn.addEventListener('click', function() {
+                subchapterItem.remove();
+                // Reindex all subchapters
+                reindexSubchapters();
+            });
+
+            // Add to container
+            subchaptersContainer.appendChild(newSubchapter);
+
+            // Add one question by default for each subchapter
+            addQuestion(questionsContainer, 1);
+        }
+
+        function addQuestion(container, questionNumber) {
+            // Clone question template
+            const newQuestion = questionTemplate.content.cloneNode(true);
+            const questionItem = newQuestion.querySelector('.question-item');
+
+            // Update question number
+            newQuestion.querySelector('.question-number').textContent = `Question ${questionNumber}`;
+
+            // Add remove event listener
+            const removeBtn = newQuestion.querySelector('.remove-question');
+            removeBtn.addEventListener('click', function() {
+                questionItem.remove();
+                // Reindex questions in this subchapter
+                reindexQuestions(container);
+            });
+
+            // Add to container
+            container.appendChild(newQuestion);
+        }
+
+        function reindexSubchapters() {
+            const subchapters = subchaptersContainer.querySelectorAll('.subchapter-item');
+
+            subchapters.forEach((subchapter, index) => {
+                // Update title
+                subchapter.querySelector('.subchapter-number').textContent = `Subchapter ${index + 1}`;
+            });
+        }
+
+        function reindexQuestions(container) {
+            const questions = container.querySelectorAll('.question-item');
+
+            questions.forEach((question, index) => {
+                // Update title
+                question.querySelector('.question-number').textContent = `Question ${index + 1}`;
+            });
+        }
+
+        // Preview functionality
+        previewBtn.addEventListener('click', function() {
+            const chapterNumber = document.getElementById('chapterNumber').value;
+            const chapterTitle = document.getElementById('chapterTitle').value;
+            const chapterDescription = document.getElementById('chapterDescription').value;
+
+            if (!chapterNumber || !chapterTitle || !chapterDescription) {
+                showAlert('Please fill out all chapter information fields', 'error');
+                return;
+            }
+
+            let previewHTML = `
+                    <div class="mb-6">
+                        <h2 class="text-xl font-bold">Chapter ${chapterNumber}: ${chapterTitle}</h2>
+                        <p class="text-gray-600 mt-1">${chapterDescription}</p>
+                    </div>
+                `;
+
+            const subchapters = subchaptersContainer.querySelectorAll('.subchapter-item');
+
+            subchapters.forEach((subchapter, index) => {
+                const title = subchapter.querySelector('.subchapter-title').value;
+                const description = subchapter.querySelector('.subchapter-description').value;
+
+                if (!title || !description) {
+                    return;
+                }
+
+                previewHTML += `
+                        <div class="mb-6 border-t pt-4">
+                            <h3 class="text-lg font-semibold">Subchapter ${index + 1}: ${title}</h3>
+                            <p class="text-gray-600 mt-1">${description}</p>
+
+                            <div class="mt-4">
+                                <h4 class="font-medium">Questions:</h4>
+                                <ul class="mt-2 space-y-3">
+                    `;
+
+                const questions = subchapter.querySelectorAll('.question-item');
+
+                questions.forEach((question, qIndex) => {
+                    const questionText = question.querySelector('.question-text').value;
+                    const answer = question.querySelector('.question-answer').value;
+                    const explanation = question.querySelector('.question-explanation').value;
+
+                    if (!questionText || !answer) {
+                        return;
+                    }
+
+                    previewHTML += `
+                            <li class="bg-gray-50 p-3 rounded">
+                                <div class="font-medium">Q${qIndex + 1}: ${questionText}</div>
+                                <div class="text-sm mt-1"><strong>Answer:</strong> ${answer}</div>
+                                ${explanation ? `<div class="text-sm mt-1 text-gray-600"><strong>Explanation:</strong> ${explanation}</div>` : ''}
+                            </li>
+                        `;
+                });
+
+                previewHTML += `
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+            });
+
+            previewContent.innerHTML = previewHTML;
+            previewModal.classList.remove('hidden');
+        });
+
+        closePreviewBtn.addEventListener('click', function() {
+            previewModal.classList.add('hidden');
+        });
+
+        closePreview.addEventListener('click', function() {
+            previewModal.classList.add('hidden');
+        });
+
+        // Close modal if clicked outside
+        previewModal.addEventListener('click', function(e) {
+            if (e.target === previewModal) {
+                previewModal.classList.add('hidden');
+            }
+        });
+
+        // Save content
+        saveBtn.addEventListener('click', function() {
+            // Validate form
+            if (!validateForm()) {
+                return;
+            }
+
+            // Show loading overlay
+            loadingOverlay.classList.remove('hidden');
+
+            // Collect form data
+            const formData = collectFormData();
+
+            // Send data to server using fetch API
+            fetch('/admin/api/save-content', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    loadingOverlay.classList.add('hidden');
+
+                    if (data.success) {
+                        showAlert(data.message, 'success');
+                        // Redirect to content list after a short delay
+                        setTimeout(() => {
+                            window.location.href = '/admin/list';
+                        }, 1500);
+                    } else {
+                        showAlert(data.error, 'error');
+                    }
+                })
+                .catch(error => {
+                    loadingOverlay.classList.add('hidden');
+                    showAlert('An error occurred while saving: ' + error.message, 'error');
+                });
+        });
+
+        function validateForm() {
+            // Check chapter info
+            const chapterNumber = document.getElementById('chapterNumber').value;
+            const chapterTitle = document.getElementById('chapterTitle').value;
+            const chapterDescription = document.getElementById('chapterDescription').value;
+
+            if (!chapterNumber || !chapterTitle || !chapterDescription) {
+                showAlert('Please fill out all chapter information fields', 'error');
+                return false;
+            }
+
+            // Check if at least one subchapter exists
+            const subchapters = subchaptersContainer.querySelectorAll('.subchapter-item');
+            if (subchapters.length === 0) {
+                showAlert('Please add at least one subchapter', 'error');
+                return false;
+            }
+
+            // Check each subchapter
+            let isValid = true;
+            subchapters.forEach((subchapter, index) => {
+                const title = subchapter.querySelector('.subchapter-title').value;
+                const description = subchapter.querySelector('.subchapter-description').value;
+
+                if (!title || !description) {
+                    showAlert(`Please fill out all fields in Subchapter ${index + 1}`, 'error');
+                    isValid = false;
+                    return;
+                }
+
+                // Check if at least one question exists
+                const questions = subchapter.querySelectorAll('.question-item');
+                if (questions.length === 0) {
+                    showAlert(`Please add at least one question to Subchapter ${index + 1}`, 'error');
+                    isValid = false;
+                    return;
+                }
+
+                // Check each question
+                questions.forEach((question, qIndex) => {
+                    const questionText = question.querySelector('.question-text').value;
+                    const answer = question.querySelector('.question-answer').value;
+
+                    if (!questionText || !answer) {
+                        showAlert(`Please fill out all required fields in Question ${qIndex + 1} of Subchapter ${index + 1}`, 'error');
+                        isValid = false;
+                        return;
+                    }
+                });
+            });
+
+            return isValid;
+        }
+
+        function collectFormData() {
+            // Collect chapter data
+            const chapterData = {
+                chapterNumber: parseInt(document.getElementById('chapterNumber').value),
+                title: document.getElementById('chapterTitle').value,
+                description: document.getElementById('chapterDescription').value
+            };
+
+            // Collect subchapters data
+            const subchaptersData = [];
+            const subchapters = subchaptersContainer.querySelectorAll('.subchapter-item');
+
+            subchapters.forEach(subchapter => {
+                const subchapterData = {
+                    title: subchapter.querySelector('.subchapter-title').value,
+                    description: subchapter.querySelector('.subchapter-description').value,
+                    questions: []
+                };
+
+                // Collect questions
+                const questions = subchapter.querySelectorAll('.question-item');
+                questions.forEach(question => {
+                    // Get the selected correct option
+                    const correctOptionElement = question.querySelector('input[name="correctOption"]:checked');
+                    const correctOption = correctOptionElement ? correctOptionElement.value : 'A';
+
+                    const questionData = {
+                        questionText: question.querySelector('.question-text').value,
+                        optionA: question.querySelector('.option-a').value,
+                        optionB: question.querySelector('.option-b').value,
+                        optionC: question.querySelector('.option-c').value,
+                        optionD: question.querySelector('.option-d').value,
+                        correctOption: correctOption,
+                        explanation: question.querySelector('.question-explanation').value
+                    };
+
+                    subchapterData.questions.push(questionData);
+                });
+
+                subchaptersData.push(subchapterData);
+            });
+
+            return {
+                chapter: chapterData,
+                subchapters: subchaptersData
+            };
+        }
+
+        function showAlert(message, type) {
+            const alertClass = type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
+
+            alertContainer.innerHTML = `
+                    <div class="mb-6 p-4 ${alertClass} rounded-md">
+                        <p>${message}</p>
+                    </div>
+                `;
+
+            // Scroll to alert
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Clear alert after 5 seconds
+            setTimeout(() => {
+                alertContainer.innerHTML = '';
+            }, 5000);
+        }
+    });
+</script>
+</body>
+</html>a

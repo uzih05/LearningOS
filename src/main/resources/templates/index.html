@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="kr" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Operating Systems - Chapter Selection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link href="https://ai-public.creatie.ai/gen_page/tailwind-custom.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com/3.4.5?plugins=forms@0.5.7,typography@0.5.13,aspect-ratio@0.4.2,container-queries@0.1.1"></script>
+    <script src="https://ai-public.creatie.ai/gen_page/tailwind-config.min.js" data-color="#000000" data-border-radius="small"></script>
+    <style>
+        /* 랜덤 질문 버튼: 초기 검은색, hover 시 그라데이션 효과 */
+        .random-question-btn {
+            background-color: black;
+            transition: background-image 0.3s ease, background-color 0.3s ease;
+        }
+        .random-question-btn:hover {
+            background-color: transparent;
+            background-image: linear-gradient(to right, #7e22ce, #2563eb);
+        }
+
+        /* Multiple choice options */
+        .option-button {
+            transition: all 0.2s ease;
+        }
+        .option-button:hover {
+            background-color: #f3f4f6;
+        }
+        .option-button.selected {
+            background-color: #4f46e5;
+            color: white;
+        }
+        .option-button.correct {
+            background-color: #10b981;
+            color: white;
+        }
+        .option-button.incorrect {
+            background-color: #ef4444;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+<!-- 네비게이션 바 -->
+<nav class="bg-white shadow-sm">
+    <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <div class="flex items-center">
+                <img src="https://ai-public.creatie.ai/gen_page/logo_placeholder.png" alt="Logo" class="h-8 w-auto"/>
+                <span class="ml-3 text-xl font-semibold text-gray-900">Operating Systems</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <!-- 인증되지 않은 경우: 로그인, 회원가입 버튼 -->
+                <div sec:authorize="!isAuthenticated()">
+                    <a th:href="@{/login}"
+                       class="!rounded-button bg-blue-600 text-white px-4 py-2 text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Sign In
+                    </a>
+                    <a th:href="@{/register}"
+                       class="!rounded-button bg-green-600 text-white px-4 py-2 text-sm font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                        Sign Up
+                    </a>
+                </div>
+                <!-- 인증된 경우: 사용자 닉네임 표시 -->
+                <div sec:authorize="isAuthenticated()">
+                    <span class="text-gray-900 font-semibold" sec:authentication="principal.nickname"></span> 님 환영합니다.
+                </div>
+                <!-- ADMIN인 경우만 추가 버튼과 편집 버튼 표시 -->
+                <div sec:authorize="hasRole('ADMIN')" class="flex space-x-2">
+                    <a th:href="@{/admin/add}"
+                       class="!rounded-button bg-purple-600 text-white px-4 py-2 text-sm font-medium hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                        <i class="fas fa-plus mr-1"></i> 추가
+                    </a>
+                    <a th:href="@{/admin/list}"
+                       class="!rounded-button bg-blue-600 text-white px-4 py-2 text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <i class="fas fa-edit mr-1"></i> 편집
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- 메인 콘텐츠: 챕터 선택 -->
+<main class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Chapter Selection</h1>
+        <p class="text-lg text-gray-600">
+            Choose a chapter to start practicing or try random questions
+        </p>
+    </div>
+
+    <!-- 챕터 버튼 목록: 각 챕터를 클릭하면 해당 챕터의 소단원 목록 페이지로 이동 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+        <div th:each="chapter : ${chapters}">
+            <a th:href="@{'/chapters/' + ${chapter.id}}"
+               class="block !rounded-button bg-gradient-to-r from-gray-200 to-gray-300 p-6 shadow-lg hover:shadow-xl transition-all text-left transform hover:scale-105 duration-200">
+                <div class="flex items-start">
+                    <span class="text-4xl font-bold text-gray-900" th:text="${chapter.chapterNumber}">1</span>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-semibold text-gray-900" th:text="${chapter.title}">Chapter Title</h3>
+                        <p class="text-sm text-gray-600 mt-1" th:text="${chapter.description}">Chapter Description</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Questions Section -->
+    <div th:if="${not #lists.isEmpty(recentQuestions)}" class="mb-12">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">Try Some Questions</h2>
+
+        <div class="grid grid-cols-1 gap-6">
+            <div th:each="question, stat : ${recentQuestions}" th:id="'question-' + ${question.id}"
+                 class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-4">
+                    <h3 class="text-white font-medium flex justify-between items-center">
+                        <span>Question <span th:text="${stat.count}"></span></span>
+                        <span class="text-xs bg-white/20 px-2 py-1 rounded-full"
+                              th:text="${question.subchapter.chapter.chapterNumber + ' - ' + question.subchapter.title}">
+                            Chapter - Subchapter
+                        </span>
+                    </h3>
+                </div>
+
+                <div class="p-6">
+                    <p class="text-gray-800 font-medium mb-4" th:text="${question.questionText}">Question text</p>
+
+                    <!-- Multiple Choice Options -->
+                    <div class="space-y-2 mb-4">
+                        <button th:data-option="A" th:data-correct="${question.correctOption}"
+                                class="option-button w-full text-left p-3 border border-gray-200 rounded hover:bg-gray-50">
+                            <span class="font-medium">A:</span> <span th:text="${question.optionA}">Option A</span>
+                        </button>
+                        <button th:data-option="B" th:data-correct="${question.correctOption}"
+                                class="option-button w-full text-left p-3 border border-gray-200 rounded hover:bg-gray-50">
+                            <span class="font-medium">B:</span> <span th:text="${question.optionB}">Option B</span>
+                        </button>
+                        <button th:data-option="C" th:data-correct="${question.correctOption}"
+                                class="option-button w-full text-left p-3 border border-gray-200 rounded hover:bg-gray-50">
+                            <span class="font-medium">C:</span> <span th:text="${question.optionC}">Option C</span>
+                        </button>
+                        <button th:data-option="D" th:data-correct="${question.correctOption}"
+                                class="option-button w-full text-left p-3 border border-gray-200 rounded hover:bg-gray-50">
+                            <span class="font-medium">D:</span> <span th:text="${question.optionD}">Option D</span>
+                        </button>
+                    </div>
+
+                    <!-- Explanation (hidden by default) -->
+                    <div class="explanation-section mt-4 hidden">
+                        <div class="p-4 bg-green-50 rounded border border-green-200">
+                            <h4 class="font-semibold text-green-800 mb-2">Explanation:</h4>
+                            <p class="text-green-700 text-sm" th:text="${question.explanation}">Explanation text</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 랜덤 질문 버튼 -->
+    <div class="flex justify-center">
+        <a th:href="@{/random-questions}"
+           class="random-question-btn !rounded-button text-white px-8 py-4 text-lg font-medium shadow-lg transform hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+            <i class="fas fa-random mr-2"></i>
+            Random Questions
+        </a>
+    </div>
+</main>
+
+<!-- 푸터 -->
+<footer class="bg-white border-t border-gray-200 mt-12">
+    <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="text-center text-sm text-gray-500">
+            © 2024 Operating Systems Learning Platform. All rights reserved.
+        </div>
+    </div>
+</footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set up the multiple choice buttons
+        const optionButtons = document.querySelectorAll('.option-button');
+
+        optionButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Get the parent question container
+                const questionContainer = this.closest('[id^="question-"]');
+
+                // Get all option buttons in this question
+                const buttons = questionContainer.querySelectorAll('.option-button');
+
+                // Get the selected option and correct option
+                const selectedOption = this.getAttribute('data-option');
+                const correctOption = this.getAttribute('data-correct');
+
+                // Disable all buttons in this question
+                buttons.forEach(btn => {
+                    btn.disabled = true;
+                });
+
+                // Check if the selected option is correct
+                if (selectedOption === correctOption) {
+                    // Correct answer
+                    this.classList.add('correct');
+                } else {
+                    // Incorrect answer
+                    this.classList.add('incorrect');
+
+                    // Highlight the correct answer
+                    buttons.forEach(btn => {
+                        if (btn.getAttribute('data-option') === correctOption) {
+                            btn.classList.add('correct');
+                        }
+                    });
+                }
+
+                // Show the explanation
+                questionContainer.querySelector('.explanation-section').classList.remove('hidden');
+            });
+        });
+    });
+</script>
+</body>
+</html>

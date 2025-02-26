@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - Operating Systems</title>
+  <link href="https://ai-public.creatie.ai/gen_page/tailwind-custom.css" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com/3.4.5"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+<div class="bg-white p-8 shadow-lg rounded max-w-md w-full">
+  <!-- 메인 화면으로 돌아가기 버튼 -->
+  <a th:href="@{/}" class="text-blue-600 hover:underline mb-4 inline-block">&larr; Main</a>
+
+  <h1 class="text-2xl font-bold mb-6 text-center">회원가입</h1>
+  <div th:if="${message}" class="mb-4 p-2 bg-green-100 text-green-800 rounded">
+    <p th:text="${message}"></p>
+  </div>
+  <form th:action="@{/register}" th:object="${user}" method="post">
+    <div class="mb-4">
+      <label for="username" class="block mb-1">아이디</label>
+      <div class="flex">
+        <input type="text" id="username" th:field="*{username}" placeholder="아이디 입력"
+               class="w-full border border-gray-300 p-2 rounded-l" required>
+        <button type="button" class="bg-gray-200 text-gray-700 px-3 rounded-r hover:bg-gray-300"
+                onclick="checkDuplicate('username', this)">중복확인</button>
+      </div>
+      <div th:if="${#fields.hasErrors('username')}" class="text-red-500 text-sm"
+           th:errors="*{username}"></div>
+    </div>
+    <div class="mb-4">
+      <label for="nickname" class="block mb-1">닉네임</label>
+      <div class="flex">
+        <input type="text" id="nickname" th:field="*{nickname}" placeholder="닉네임 입력"
+               class="w-full border border-gray-300 p-2 rounded-l" required>
+        <button type="button" class="bg-gray-200 text-gray-700 px-3 rounded-r hover:bg-gray-300"
+                onclick="checkDuplicate('nickname', this)">중복확인</button>
+      </div>
+      <div th:if="${#fields.hasErrors('nickname')}" class="text-red-500 text-sm"
+           th:errors="*{nickname}"></div>
+    </div>
+    <div class="mb-4">
+      <label for="password" class="block mb-1">비밀번호</label>
+      <input type="password" id="password" th:field="*{password}" placeholder="비밀번호 입력"
+             class="w-full border border-gray-300 p-2 rounded" required>
+      <div th:if="${#fields.hasErrors('password')}" class="text-red-500 text-sm"
+           th:errors="*{password}"></div>
+    </div>
+    <!-- 검은색 배경의 회원가입 버튼 -->
+    <button type="submit"
+            class="w-full bg-black text-white py-2 rounded hover:bg-gray-800">
+      회원가입
+    </button>
+  </form>
+  <p class="mt-4 text-center">
+    이미 계정이 있으신가요? <a th:href="@{/login}" class="text-blue-600 hover:underline">로그인</a>
+  </p>
+</div>
+
+<script>
+  // 중복확인 버튼 클릭 시 호출되는 함수 (AJAX 요청 예시)
+  function checkDuplicate(field, btn) {
+    var value = document.getElementById(field).value;
+    if (!value) {
+      alert(field + "을(를) 입력해주세요.");
+      return;
+    }
+    fetch('/check-' + field + '?value=' + encodeURIComponent(value))
+            .then(response => {
+              if (!response.ok) {
+                throw new Error("서버 응답 오류: " + response.status);
+              }
+              return response.json();
+            })
+            .then(data => {
+              if (data.duplicate) {
+                alert(field + "이(가) 이미 존재합니다.");
+              } else {
+                alert(field + " 사용 가능!");
+              }
+            })
+            .catch(error => {
+              console.error("중복 확인 에러: ", error);
+              alert("중복 확인에 실패했습니다.");
+            });
+  }
+</script>
+</body>
+</html>

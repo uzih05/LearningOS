@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Content List</title>
+    <link href="https://ai-public.creatie.ai/gen_page/tailwind-custom.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com/3.4.5"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+</head>
+<body class="bg-gray-50 min-h-screen">
+<nav class="bg-white shadow-sm">
+    <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <div class="flex items-center">
+                <a href="/" class="text-gray-900 font-semibold">
+                    <span class="text-xl font-semibold">Operating Systems</span>
+                </a>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span class="text-gray-900">Admin Panel</span>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+        <h1 class="text-2xl font-bold mb-6">Content Management</h1>
+
+        <div id="alert-container" class="mb-4">
+            <div th:if="${message}" class="p-3 bg-green-100 text-green-700 rounded-md">
+                <p th:text="${message}"></p>
+            </div>
+        </div>
+
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-4">Chapters</h2>
+            <div class="bg-white shadow overflow-hidden sm:rounded-md">
+                <ul class="divide-y divide-gray-200">
+                    <li th:each="chapter : ${chapters}" class="px-6 py-4 flex items-center" th:id="'chapter-' + ${chapter.id}">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center">
+                                <span class="text-lg font-bold mr-2" th:text="${chapter.chapterNumber}"></span>
+                                <span class="text-lg" th:text="${chapter.title}"></span>
+                            </div>
+                            <p class="text-sm text-gray-500" th:text="${chapter.description}"></p>
+
+                            <!-- Subchapters toggle control -->
+                            <button type="button" class="mt-2 text-sm text-blue-600 hover:text-blue-900 toggle-subchapters"
+                                    th:attr="data-chapter-id=${chapter.id}">
+                                <i class="fas fa-chevron-down"></i> Show Subchapters
+                            </button>
+
+                            <!-- Subchapters container (hidden by default) -->
+                            <div class="subchapters-container mt-3 pl-4 border-l-2 border-gray-200 hidden"
+                                 th:id="'subchapters-' + ${chapter.id}">
+                                <div th:if="${chapter.subchapters != null and not #lists.isEmpty(chapter.subchapters)}">
+                                    <div th:each="subchapter : ${chapter.subchapters}" class="mb-3 pb-2 border-b border-gray-100"
+                                         th:id="'subchapter-' + ${subchapter.id}">
+                                        <div class="flex justify-between items-center">
+                                            <div>
+                                                <h4 class="font-medium" th:text="${subchapter.title}"></h4>
+                                                <p class="text-xs text-gray-500" th:text="${subchapter.description}"></p>
+                                            </div>
+                                            <div class="flex space-x-2">
+                                                <a th:href="@{'/admin/edit/subchapter/' + ${subchapter.id}}" class="text-indigo-600 hover:text-indigo-900">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button type="button" class="text-red-600 hover:text-red-900 delete-item"
+                                                        th:attr="data-type='subchapter', data-id=${subchapter.id}">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div th:unless="${chapter.subchapters != null and not #lists.isEmpty(chapter.subchapters)}"
+                                     class="text-sm text-gray-500 py-2">
+                                    No subchapters in this chapter
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ml-4 flex-shrink-0 flex space-x-3">
+                            <a th:href="@{'/admin/edit/chapter/' + ${chapter.id}}" class="text-indigo-600 hover:text-indigo-900">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <button type="button" class="text-red-600 hover:text-red-900 delete-item"
+                                    th:attr="data-type='chapter', data-id=${chapter.id}">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </li>
+                    <li th:if="${#lists.isEmpty(chapters)}" class="px-6 py-4 text-center text-gray-500">
+                        No chapters available
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="mt-8">
+            <a href="/admin/add" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <i class="fas fa-plus -ml-1 mr-2"></i>
+                Add New Content
+            </a>
+        </div>
+    </div>
+</main>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white p-5 rounded-lg shadow-lg flex items-center space-x-3">
+        <svg class="animate-spin h-5 w-5 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span id="loading-text">Processing...</span>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Delete functionality
+        const deleteButtons = document.querySelectorAll('.delete-item');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const loadingText = document.getElementById('loading-text');
+        const alertContainer = document.getElementById('alert-container');
+
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const type = this.getAttribute('data-type');
+                const id = this.getAttribute('data-id');
+
+                if (confirm(`Are you sure you want to delete this ${type}?`)) {
+                    // Show loading overlay
+                    loadingText.textContent = `Deleting ${type}...`;
+                    loadingOverlay.classList.remove('hidden');
+
+                    // Send delete request
+                    fetch(`/admin/delete/${type}/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            loadingOverlay.classList.add('hidden');
+
+                            if (data.success) {
+                                // Remove the element from DOM
+                                const elementId = `${type}-${id}`;
+                                const element = document.getElementById(elementId);
+                                if (element) {
+                                    element.remove();
+                                }
+
+                                // Show success message
+                                showAlert(data.message, 'success');
+                            } else {
+                                // Show error message
+                                showAlert(data.error || 'An error occurred while deleting', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            loadingOverlay.classList.add('hidden');
+                            showAlert('An error occurred while deleting: ' + error.message, 'error');
+                        });
+                }
+            });
+        });
+
+        // Toggle subchapters
+        const toggleButtons = document.querySelectorAll('.toggle-subchapters');
+
+        toggleButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const chapterId = this.getAttribute('data-chapter-id');
+                const subchaptersContainer = document.getElementById(`subchapters-${chapterId}`);
+
+                if (subchaptersContainer.classList.contains('hidden')) {
+                    // Show subchapters
+                    subchaptersContainer.classList.remove('hidden');
+                    this.innerHTML = '<i class="fas fa-chevron-up"></i> Hide Subchapters';
+                } else {
+                    // Hide subchapters
+                    subchaptersContainer.classList.add('hidden');
+                    this.innerHTML = '<i class="fas fa-chevron-down"></i> Show Subchapters';
+                }
+            });
+        });
+
+        function showAlert(message, type) {
+            const alertClass = type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
+
+            alertContainer.innerHTML = `
+                <div class="p-3 ${alertClass} rounded-md">
+                    <p>${message}</p>
+                </div>
+            `;
+
+            // Scroll to alert
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Clear alert after 5 seconds
+            setTimeout(() => {
+                alertContainer.innerHTML = '';
+            }, 5000);
+        }
+    });
+</script>
+</body>
+</html>

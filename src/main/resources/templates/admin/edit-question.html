@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Edit Question</title>
+    <link href="https://ai-public.creatie.ai/gen_page/tailwind-custom.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com/3.4.5"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+</head>
+<body class="bg-gray-50 min-h-screen">
+<nav class="bg-white shadow-sm">
+    <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <div class="flex items-center">
+                <a href="/" class="text-gray-900 font-semibold">
+                    <span class="text-xl font-semibold">Operating Systems</span>
+                </a>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span class="text-gray-900">Admin Panel</span>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-2xl font-bold">Edit Question</h1>
+            <div>
+                <a href="/admin/list" class="text-indigo-600 hover:text-indigo-900">
+                    <i class="fas fa-arrow-left mr-1"></i> Back to List
+                </a>
+            </div>
+        </div>
+
+        <div th:if="${message}" class="mb-4 p-3 bg-green-100 text-green-700 rounded-md">
+            <p th:text="${message}"></p>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <form th:action="@{'/admin/edit/question/' + ${question.id}}" th:object="${question}" method="post" class="space-y-4">
+                    <input type="hidden" th:field="*{id}" />
+
+                    <div>
+                        <label for="subchapter" class="block text-sm font-medium text-gray-700">Subchapter</label>
+                        <select id="subchapter" th:field="*{subchapter.id}" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" required>
+                            <option value="">Select Subchapter</option>
+                            <option th:each="subchapter : ${subchapters}" th:value="${subchapter.id}"
+                                    th:text="${subchapter.chapter.chapterNumber + ' - ' + subchapter.chapter.title + ' → ' + subchapter.title}"></option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="questionText" class="block text-sm font-medium text-gray-700">Question Text</label>
+                        <textarea id="questionText" th:field="*{questionText}" rows="3"
+                                  class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required></textarea>
+                    </div>
+
+                    <!-- Multiple Choice Options -->
+                    <div class="space-y-3 pt-2">
+                        <h3 class="text-sm font-medium text-gray-700">Multiple Choice Options</h3>
+
+                        <div class="flex items-center">
+                            <div class="w-8 text-center">
+                                <input type="radio" id="optA" name="correctOption" value="A" th:field="*{correctOption}"
+                                       class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300">
+                            </div>
+                            <div class="flex-1">
+                                <label for="optionA" class="block text-sm font-medium text-gray-700">Option A</label>
+                                <input type="text" id="optionA" th:field="*{optionA}"
+                                       class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center">
+                            <div class="w-8 text-center">
+                                <input type="radio" id="optB" name="correctOption" value="B" th:field="*{correctOption}"
+                                       class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300">
+                            </div>
+                            <div class="flex-1">
+                                <label for="optionB" class="block text-sm font-medium text-gray-700">Option B</label>
+                                <input type="text" id="optionB" th:field="*{optionB}"
+                                       class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center">
+                            <div class="w-8 text-center">
+                                <input type="radio" id="optC" name="correctOption" value="C" th:field="*{correctOption}"
+                                       class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300">
+                            </div>
+                            <div class="flex-1">
+                                <label for="optionC" class="block text-sm font-medium text-gray-700">Option C</label>
+                                <input type="text" id="optionC" th:field="*{optionC}"
+                                       class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center">
+                            <div class="w-8 text-center">
+                                <input type="radio" id="optD" name="correctOption" value="D" th:field="*{correctOption}"
+                                       class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300">
+                            </div>
+                            <div class="flex-1">
+                                <label for="optionD" class="block text-sm font-medium text-gray-700">Option D</label>
+                                <input type="text" id="optionD" th:field="*{optionD}"
+                                       class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="explanation" class="block text-sm font-medium text-gray-700">Explanation</label>
+                        <textarea id="explanation" th:field="*{explanation}" rows="3"
+                                  class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
+                    </div>
+
+                    <div class="pt-4 flex items-center justify-between">
+                        <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Save Changes
+                        </button>
+
+                        <a th:href="@{/admin/list}" class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

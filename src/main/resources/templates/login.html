@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Operating Systems</title>
+  <link href="https://ai-public.creatie.ai/gen_page/tailwind-custom.css" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com/3.4.5"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+<div class="bg-white p-8 shadow-lg rounded max-w-md w-full">
+  <!-- 메인 화면으로 돌아가기 버튼 -->
+  <a th:href="@{/}" class="text-blue-600 hover:underline mb-4 inline-block">&larr; Main</a>
+
+  <h1 class="text-2xl font-bold mb-6 text-center">로그인</h1>
+  <form th:action="@{/login}" method="post">
+    <div class="mb-4">
+      <label for="username" class="block mb-1">아이디</label>
+      <input type="text" id="username" name="username"
+             class="w-full border border-gray-300 p-2 rounded" required>
+    </div>
+    <div class="mb-4">
+      <label for="password" class="block mb-1">비밀번호</label>
+      <input type="password" id="password" name="password"
+             class="w-full border border-gray-300 p-2 rounded" required>
+    </div>
+    <!-- 검은색 배경의 로그인 버튼 -->
+    <button type="submit"
+            class="w-full bg-black text-white py-2 rounded hover:bg-gray-800">
+      로그인
+    </button>
+  </form>
+  <p class="mt-4 text-center">
+    계정이 없으신가요? <a th:href="@{/register}" class="text-blue-600 hover:underline">회원가입</a>
+  </p>
+</div>
+</body>
+</html>

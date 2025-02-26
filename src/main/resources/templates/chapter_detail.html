@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="kr" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <!-- meta, CSS, JS -->
+</head>
+<body>
+<nav>
+  <a th:href="@{/}" class="btn">메인으로</a>
+</nav>
+
+<main>
+  <h1 th:text="${chapter.title}">챕터 제목</h1>
+  <div class="subchapter-list">
+    <div th:each="subchapter : ${chapter.subchapters}">
+      <a th:href="@{'/subchapters/' + ${subchapter.id}}" class="subchapter-button">
+        <span th:text="${subchapter.title}"></span>
+      </a>
+    </div>
+  </div>
+</main>
+</body>
+</html>

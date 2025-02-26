@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="kr" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Random Questions - Operating Systems</title>
+  <link href="https://ai-public.creatie.ai/gen_page/tailwind-custom.css" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com/3.4.5"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <style>
+    /* Multiple choice options */
+    .option-button {
+      transition: all 0.2s ease;
+    }
+    .option-button:hover {
+      background-color: #f3f4f6;
+    }
+    .option-button.selected {
+      background-color: #4f46e5;
+      color: white;
+    }
+    .option-button.correct {
+      background-color: #10b981;
+      color: white;
+    }
+    .option-button.incorrect {
+      background-color: #ef4444;
+      color: white;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+<!-- 네비게이션 바 -->
+<nav class="bg-white shadow-sm p-4">
+  <div class="container mx-auto flex justify-between items-center">
+    <a th:href="@{/}" class="text-gray-900 font-semibold flex items-center">
+      <i class="fas fa-home mr-2"></i> 메인으로
+    </a>
+    <div>
+      <form method="get" action="/random-questions" class="flex items-center space-x-2">
+        <label for="count" class="text-sm text-gray-600">질문 수:</label>
+        <select id="count" name="count" class="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <option value="3" th:selected="${count == 3}">3</option>
+          <option value="5" th:selected="${count == 5}">5</option>
+          <option value="10" th:selected="${count == 10}">10</option>
+          <option value="15" th:selected="${count == 15}">15</option>
+        </select>
+        <button type="submit" class="bg-indigo-600 text-white px-3 py-1 rounded text-sm hover:bg-indigo-700">
+          새로고침
+        </button>
+      </form>
+    </div>
+  </div>
+</nav>
+
+<!-- 메인 콘텐츠: 랜덤 문제 목록 -->
+<main class="container mx-auto px-4 py-8 max-w-4xl">
+  <div class="text-center mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">Random Questions</h1>
+    <p class="text-lg text-gray-600 mt-2">
+      Test your knowledge with these random questions from different chapters
+    </p>
+  </div>
+
+  <div class="space-y-6">
+    <div th:each="question, questionStat : ${questions}" th:id="'question-' + ${question.id}"
+         class="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg">
+      <div class="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-4">
+        <h2 class="text-white font-semibold flex items-center justify-between">
+          <span>Question #<span th:text="${questionStat.count}"></span></span>
+          <span class="text-xs bg-white/20 px-2 py-1 rounded-full"
+                th:text="${question.subchapter.chapter.chapterNumber + ' - ' + question.subchapter.title}">
+            Chapter - Subchapter
+          </span>
+        </h2>
+      </div>
+
+      <div class="p-6">
+        <p class="text-gray-800 font-medium mb-6" th:text="${question.questionText}">Question text</p>
+
+        <!-- Multiple Choice Options -->
+        <div class="space-y-3 mb-4">
+          <button th:data-option="A" th:data-correct="${question.correctOption}"
+                  class="option-button w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none">
+            <span class="inline-flex items-center justify-center bg-indigo-100 text-indigo-800 w-6 h-6 rounded-full mr-2">A</span>
+            <span th:text="${question.optionA}">Option A</span>
+          </button>
+
+          <button th:data-option="B" th:data-correct="${question.correctOption}"
+                  class="option-button w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none">
+            <span class="inline-flex items-center justify-center bg-indigo-100 text-indigo-800 w-6 h-6 rounded-full mr-2">B</span>
+            <span th:text="${question.optionB}">Option B</span>
+          </button>
+
+          <button th:data-option="C" th:data-correct="${question.correctOption}"
+                  class="option-button w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none">
+            <span class="inline-flex items-center justify-center bg-indigo-100 text-indigo-800 w-6 h-6 rounded-full mr-2">C</span>
+            <span th:text="${question.optionC}">Option C</span>
+          </button>
+
+          <button th:data-option="D" th:data-correct="${question.correctOption}"
+                  class="option-button w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none">
+            <span class="inline-flex items-center justify-center bg-indigo-100 text-indigo-800 w-6 h-6 rounded-full mr-2">D</span>
+            <span th:text="${question.optionD}">Option D</span>
+          </button>
+        </div>
+
+        <!-- Explanation (hidden by default) -->
+        <div class="explanation-section mt-4 hidden">
+          <div class="p-4 bg-green-50 rounded-lg border border-green-200">
+            <h4 class="font-semibold text-green-800 mb-2">Explanation:</h4>
+            <p class="text-green-700" th:text="${question.explanation}">Explanation text</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- No questions message -->
+    <div th:if="${#lists.isEmpty(questions)}" class="bg-white p-8 rounded-lg shadow text-center">
+      <i class="fas fa-exclamation-circle text-gray-400 text-4xl mb-4"></i>
+      <p class="text-gray-600">No questions available. Please add some questions first.</p>
+      <a th:href="@{/}" class="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
+        Return to Home
+      </a>
+    </div>
+  </div>
+
+  <!-- New Set Button -->
+  <div class="mt-8 text-center">
+    <form method="get" action="/random-questions">
+      <input type="hidden" name="count" th:value="${count}">
+      <button type="submit" class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-3 rounded-lg shadow hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all transform hover:scale-105">
+        <i class="fas fa-random mr-2"></i>
+        Generate New Set
+      </button>
+    </form>
+  </div>
+</main>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Set up the multiple choice buttons
+    const optionButtons = document.querySelectorAll('.option-button');
+
+    optionButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        // Get the parent question container
+        const questionContainer = this.closest('[id^="question-"]');
+
+        // Get all option buttons in this question
+        const buttons = questionContainer.querySelectorAll('.option-button');
+
+        // Get the selected option and correct option
+        const selectedOption = this.getAttribute('data-option');
+        const correctOption = this.getAttribute('data-correct');
+
+        // Disable all buttons in this question
+        buttons.forEach(btn => {
+          btn.disabled = true;
+        });
+
+        // Check if the selected option is correct
+        if (selectedOption === correctOption) {
+          // Correct answer
+          this.classList.add('correct');
+        } else {
+          // Incorrect answer
+          this.classList.add('incorrect');
+
+          // Highlight the correct answer
+          buttons.forEach(btn => {
+            if (btn.getAttribute('data-option') === correctOption) {
+              btn.classList.add('correct');
+            }
+          });
+        }
+
+        // Show the explanation
+        questionContainer.querySelector('.explanation-section').classList.remove('hidden');
+      });
+    });
+  });
+</script>
+</body>
+</html>
